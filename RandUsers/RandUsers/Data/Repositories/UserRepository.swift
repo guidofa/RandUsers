@@ -29,13 +29,15 @@ struct UserRepositoryImpl: UserRepository {
 
             let (data, response) = try await session.data(from: url)
 
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200,
+                  httpResponse.mimeType == "application/json" else {
                 throw URLError(.badServerResponse )
             }
 
             let userListResponse = try JSONDecoder().decode(UserListResponse.self, from: data)
 
-            return userListResponse.results.map { .init(gender: $0.gender) }
+            return userListResponse.toUserModels()
         } catch let error {
             throw error
         }

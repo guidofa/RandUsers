@@ -8,17 +8,24 @@
 import Foundation
 
 struct UserModel {
-    let gender: String
-//    let location: UserLocationModel
-//    let name: String
-//    let phone: String
-//    let picture: String
-//    let registeredDate: String
-//    let surname: String
+    let id: String
+    let email: String?
+    let gender: String?
+    let location: UserLocationModel?
+    let name: String?
+    let phone: String?
+    let picture: String?
+    let registeredDate: Date?
+    let surname: String?
+
+    var completeName: String {
+        "\(name ?? "-") \(surname ?? "-")"
+    }
 }
 
 struct UserLocationModel {
-    let city: String
-    let state: String
-    let street: String
+    let city: String?
+    let state: String?
+    let streetName: String?
+    let streetNumber: String?
 }
