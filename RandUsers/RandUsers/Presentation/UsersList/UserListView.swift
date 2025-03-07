@@ -12,8 +12,8 @@ struct UserListView: View {
 
     var body: some View {
         Text("Hola")
-            .task {
-                await viewModel.getUsersList()
+            .task { [weak viewModel] in
+                await viewModel?.getUsersList()
             }
     }
 }

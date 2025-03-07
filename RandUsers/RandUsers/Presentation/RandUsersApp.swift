@@ -13,17 +13,17 @@ struct RandUsersApp: App {
     // MARK: - Composition Root
 
     private let getUserListUseCase: GetUserListUseCase
-    private let networkManager: NetworkManager
+    private let userRepository: UserRepository
 
     init() {
-        self.networkManager = NetworkManagerImpl()
-        self.getUserListUseCase = GetUserListUseCase(networkManager: networkManager)
+        self.userRepository = UserRepositoryImpl()
+        self.getUserListUseCase = GetUserListUseCaseImpl(userRepository: userRepository)
     }
 
     var body: some Scene {
         WindowGroup {
             UserListView(
-                viewModel: UserListViewModel(networkManager: networkManager)
+                viewModel: UserListViewModel(getUserListUseCase: getUserListUseCase)
             )
         }
     }

@@ -8,17 +8,17 @@
 import Foundation
 
 class UserListViewModel: ObservableObject {
-    let networkManager: NetworkManager
+    let getUserListUseCase: GetUserListUseCase
     var usersList = [UserModel]()
 
-    init(usersList: [UserModel] = [UserModel](), networkManager: NetworkManager) {
-        self.networkManager = networkManager
+    init(getUserListUseCase: GetUserListUseCase, usersList: [UserModel] = [UserModel]()) {
+        self.getUserListUseCase = getUserListUseCase
         self.usersList = usersList
     }
 
     func getUsersList() async {
         do {
-            let response = try await networkManager.getUsers()
+            let response = try await getUserListUseCase.execute()
             print(response)
         } catch let error {
             print(error.localizedDescription)

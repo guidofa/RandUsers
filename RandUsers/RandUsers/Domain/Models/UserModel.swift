@@ -9,12 +9,12 @@ import Foundation
 
 struct UserModel {
     let gender: String
-    let location: UserLocationModel
-    let name: String
-    let phone: String
-    let picture: String
-    let registeredDate: String
-    let surname: String
+//    let location: UserLocationModel
+//    let name: String
+//    let phone: String
+//    let picture: String
+//    let registeredDate: String
+//    let surname: String
 }
 
 struct UserLocationModel {

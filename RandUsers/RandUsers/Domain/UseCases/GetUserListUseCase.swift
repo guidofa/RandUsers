@@ -7,22 +7,18 @@
 
 import Foundation
 
-struct GetUserListUseCase: UseCase {
+protocol GetUserListUseCase {
+    func execute() async throws -> [UserModel]
+}
 
-    // MARK: - Typealias
+struct GetUserListUseCaseImpl: GetUserListUseCase {
+    private let userRepository: UserRepository
 
-    typealias Params = Void
-    typealias Response = [UserModel]
-
-    private let networkManager: NetworkManager
-
-    init(networkManager: NetworkManager) {
-        self.networkManager = networkManager
+    init(userRepository: UserRepository) {
+        self.userRepository = userRepository
     }
 
-    // MARK: - Implementation
-
-    func execute(with params: Params) -> Response {
-        return []
+    func execute() async throws -> [UserModel] {
+        return try await userRepository.getUsers()
     }
 }
