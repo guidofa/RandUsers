@@ -7,8 +7,19 @@
 
 import SwiftUI
 
+private extension CGFloat {
+    static var largePadding: Self { 32 }
+}
+
+private extension LocalizedStringKey {
+    static var genericError: Self { "Ooops... there was an error!" }
+    static var navigationTitle: Self { "Random Users" }
+}
+
 struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
+
+    @State private var selectedUser: UserModel?
 
     var body: some View {
         NavigationStack {
@@ -19,17 +30,24 @@ struct UserListView: View {
 
                 case .loaded:
                     ScrollView {
-                        LazyVStack(spacing: 20) {
+                        LazyVStack(spacing: .largePadding) {
                             ForEach(viewModel.usersList) { user in
                                 UserView(user: user)
+                                    .onTapGesture {
+                                        selectedUser = user
+                                    }
                             }
                         }
                     }
+
                 case .error:
-                    Text("An error ocurred")
+                    Text( .genericError)
                 }
             }
-            .navigationTitle("Random Users")
+            .navigationTitle(.navigationTitle)
+            .sheet(item: $selectedUser, content: { user in
+                UserView(user: user)
+            })
         }
         .task { [weak viewModel] in
             await viewModel?.trigger(.getUsersList)
