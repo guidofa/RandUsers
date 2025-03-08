@@ -8,7 +8,7 @@
 import Foundation
 
 protocol GetUserListUseCase {
-    func execute() async throws -> [UserModel]
+    func execute(page: Int, seed: String?) async throws -> [UserModel]
 }
 
 struct GetUserListUseCaseImpl: GetUserListUseCase {
@@ -18,7 +18,7 @@ struct GetUserListUseCaseImpl: GetUserListUseCase {
         self.userRepository = userRepository
     }
 
-    func execute() async throws -> [UserModel] {
-        return try await userRepository.getUsers()
+    func execute(page: Int, seed: String?) async throws -> [UserModel] {
+        return try await userRepository.getUsers(page: page, seed: seed)
     }
 }

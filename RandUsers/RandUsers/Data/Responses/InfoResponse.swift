@@ -8,8 +8,8 @@
 import Foundation
 
 struct InfoResponse: Codable {
-    let seed: String?
-    let results: Int?
     let page: Int?
+    let results: Int?
+    let seed: String?
     let version: String?
 }

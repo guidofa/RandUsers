@@ -17,9 +17,10 @@ struct UserModel: Identifiable {
     let picture: String?
     let registeredDate: Date?
     let surname: String?
+    let thumbnailPicture: String?
 
     var completeName: String {
-        "\(name ?? "-") \(surname ?? "-")"
+        "\(name ?? .empty) \(surname ?? .empty)"
     }
 }
 

@@ -8,11 +8,10 @@
 import Foundation
 
 protocol UserRepository {
-    func getUsers() async throws -> [UserModel]
+    func getUsers(page: Int, seed: String?) async throws -> [UserModel]
 }
 
 struct UserRepositoryImpl: UserRepository {
-    private let urlString = "https://api.randomuser.me/?results=5"
     private let session: URLSession
 
     init(
@@ -21,12 +20,26 @@ struct UserRepositoryImpl: UserRepository {
         self.session = session
     }
 
-    func getUsers() async throws -> [UserModel] {
+    func getUsers(page: Int, seed: String?) async throws -> [UserModel] {
         do {
-            guard let url = URL(string: urlString), url.scheme != nil, url.host != nil else {
+            var components = URLComponents(string: NetworkConstants.apiBaseURLString)
+
+            var queryItems: [URLQueryItem] = [
+                URLQueryItem(name: "page", value: String(page)),
+                URLQueryItem(name: "results", value: NetworkConstants.usersPerPage)
+            ]
+
+            if let seed {
+                queryItems.append(.init(name: "seed", value: seed))
+            }
+
+            components?.queryItems = queryItems
+
+            guard let url = components?.url, url.scheme != nil, url.host != nil else {
                 throw URLError(.badURL)
             }
 
+            print("🌐 API call: \(url.absoluteString)")
             let (data, response) = try await session.data(from: url)
 
             guard let httpResponse = response as? HTTPURLResponse,
@@ -35,9 +48,9 @@ struct UserRepositoryImpl: UserRepository {
                 throw URLError(.badServerResponse )
             }
 
-            let userListResponse = try JSONDecoder().decode(Results.self, from: data)
+            print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
 
-            return userListResponse.toUserModels()
+            return try JSONDecoder().decode(Results.self, from: data).toUserModels()
         } catch let error {
             throw error
         }
