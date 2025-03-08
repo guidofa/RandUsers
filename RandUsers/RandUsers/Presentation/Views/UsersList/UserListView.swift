@@ -102,6 +102,8 @@ struct UserView: View {
                         .foregroundColor(.primary)
                 }
             }
+
+            Spacer(minLength: 4)
         }
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary).shadow(radius: 4))
