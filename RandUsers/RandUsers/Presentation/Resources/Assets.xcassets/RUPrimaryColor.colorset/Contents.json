@@ -2,7 +2,7 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "ios",
+        "platform" : "universal",
         "reference" : "labelColor"
       },
       "idiom" : "universal"
