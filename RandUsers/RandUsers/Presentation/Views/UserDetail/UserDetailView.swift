@@ -28,7 +28,7 @@ struct UserDetailView: View {
                     } else if phase.error != nil {
                         Image(systemName: .defaultProfileImageName)
                             .resizable()
-                            .foregroundColor(Color.primary)
+                            .foregroundColor(Color.ruPrimary)
                     } else {
                         ProgressView()
                     }
@@ -41,7 +41,7 @@ struct UserDetailView: View {
             }
 
             Text(user.completeName)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.ruPrimary)
                 .font(.headline)
 
             InfoView(title: .gender, subtitle: user.gender ?? .empty)
@@ -63,11 +63,11 @@ struct InfoView: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.ruPrimary)
                 .font(.headline)
 
             Text(subtitle)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.ruPrimary)
                 .font(.system(size: 18))
         }
     }

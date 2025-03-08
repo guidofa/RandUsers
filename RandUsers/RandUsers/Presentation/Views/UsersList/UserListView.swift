@@ -35,16 +35,10 @@ struct UserListView: View {
                         .tint(.primary)
 
                 case .loaded:
-                    ScrollView {
-                        LazyVStack(spacing: .largePadding) {
-                            ForEach(viewModel.usersList) { user in
-                                UserView(user: user)
-                                    .onTapGesture {
-                                        selectedUser = user
-                                    }
-                            }
-                        }
-                    }
+                    ListView(
+                        viewModel: viewModel,
+                        selectedUser: $selectedUser
+                    )
 
                 case .error:
                     Text( .genericError)
@@ -64,7 +58,31 @@ struct UserListView: View {
     }
 }
 
-struct UserView: View {
+private struct ListView: View {
+    @StateObject var viewModel: UserListViewModel
+
+    @Binding var selectedUser: UserModel?
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: .largePadding) {
+                ForEach(viewModel.usersList) { user in
+                    UserView(user: user)
+                        .onTapGesture { selectedUser = user }
+                        .onAppear { [weak viewModel] in
+                            if user == viewModel?.usersList.last {
+                                Task { [weak viewModel] in
+                                    await viewModel?.trigger(.loadMore)
+                                }
+                            }
+                        }
+                }
+            }
+        }
+    }
+}
+
+private struct UserView: View {
     let user: UserModel
 
     var body: some View {
@@ -95,18 +113,18 @@ struct UserView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(user.phone ?? .empty)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.ruPrimary)
 
                     Text(user.email ?? .empty)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.ruPrimary)
                 }
             }
 
             Spacer(minLength: 4)
         }
         .padding(8)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary).shadow(radius: 4))
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.ruSecondary).shadow(radius: 4))
         .padding(.horizontal, 8)
     }
 }

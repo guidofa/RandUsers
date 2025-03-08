@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserModel: Identifiable {
+struct UserModel: Equatable, Identifiable {
     let id: String
     let email: String?
     let gender: String?
@@ -21,6 +21,10 @@ struct UserModel: Identifiable {
 
     var completeName: String {
         "\(name ?? .empty) \(surname ?? .empty)"
+    }
+
+    static func == (lhs: UserModel, rhs: UserModel) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 
