@@ -7,17 +7,6 @@
 
 import Foundation
 
-struct UserListResponse: Codable {
-    let info: InfoResponse
-    let results: [UserResponse]?
-}
-
-struct InfoResponse: Codable {
-    let seed: String?
-    let results: Int?
-    let page: Int?
-    let version: String?
-}
 struct UserResponse: Codable {
     let email: String?
     let gender: String?

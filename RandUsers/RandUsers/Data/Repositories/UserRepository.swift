@@ -35,7 +35,7 @@ struct UserRepositoryImpl: UserRepository {
                 throw URLError(.badServerResponse )
             }
 
-            let userListResponse = try JSONDecoder().decode(UserListResponse.self, from: data)
+            let userListResponse = try JSONDecoder().decode(Results.self, from: data)
 
             return userListResponse.toUserModels()
         } catch let error {

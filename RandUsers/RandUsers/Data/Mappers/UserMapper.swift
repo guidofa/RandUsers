@@ -7,11 +7,9 @@
 
 import Foundation
 
-extension UserListResponse {
+extension Results {
     func toUserModels() -> [UserModel] {
-        guard let results else {
-            return []
-        }
+        guard let results else { return [] }
 
         return results.compactMap { result in
                 guard let id = result.login?.uuid else {
