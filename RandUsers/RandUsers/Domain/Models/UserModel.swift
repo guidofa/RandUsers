@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserModel {
+struct UserModel: Identifiable {
     let id: String
     let email: String?
     let gender: String?

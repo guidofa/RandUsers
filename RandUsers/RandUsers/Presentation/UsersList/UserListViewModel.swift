@@ -8,20 +8,60 @@
 import Foundation
 
 class UserListViewModel: ObservableObject {
-    let getUserListUseCase: GetUserListUseCase
-    var usersList = [UserModel]()
+    enum ViewState {
+        case loading
+        case loaded
+        case error
+    }
+
+    private let getUserListUseCase: GetUserListUseCase
 
     init(getUserListUseCase: GetUserListUseCase, usersList: [UserModel] = [UserModel]()) {
         self.getUserListUseCase = getUserListUseCase
         self.usersList = usersList
     }
 
-    func getUsersList() async {
-        do {
-            let response = try await getUserListUseCase.execute()
-            print(response)
-        } catch let error {
-            print(error.localizedDescription)
+    func trigger(_ action: TriggerAction) async {
+        switch action {
+        case .getUsersList:
+            await getUsersList()
         }
+    }
+
+    private func getUsersList() async {
+        do {
+            await setLoadingState(state: .loading)
+
+            let response = try await getUserListUseCase.execute()
+
+            await setUsersList(response)
+
+            await setLoadingState(state: .loaded)
+        } catch let error {
+            await setLoadingState(state: .error)
+        }
+    }
+
+    // MARK: - MainActor methods
+
+    @MainActor
+    func setUsersList(_ usersList: [UserModel]) {
+        self.usersList = usersList
+    }
+
+    @MainActor
+    func setLoadingState(state: ViewState) {
+        self.state = state
+    }
+
+    // MARK: - Published vars
+
+    @Published var state = ViewState.loading
+    @Published var usersList = [UserModel]()
+
+    // MARK: - Triggers
+
+    enum TriggerAction{
+        case getUsersList
     }
 }
