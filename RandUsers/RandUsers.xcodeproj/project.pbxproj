@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C561A07D2D7A983D008CCE69 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C561A07C2D7A983D008CCE69 /* RealmSwift */; };
+		C57C6A672D7CE15A0087F9DE /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = C561A07C2D7A983D008CCE69 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +27,20 @@
 			remoteInfo = RandUsers;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C57C6A682D7CE15A0087F9DE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C57C6A672D7CE15A0087F9DE /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C55430F62D7A4D2700460438 /* RandUsers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandUsers.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,6 +122,7 @@
 				C55430F22D7A4D2700460438 /* Sources */,
 				C55430F32D7A4D2700460438 /* Frameworks */,
 				C55430F42D7A4D2700460438 /* Resources */,
+				C57C6A682D7CE15A0087F9DE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

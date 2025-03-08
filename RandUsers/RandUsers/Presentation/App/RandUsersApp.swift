@@ -17,7 +17,9 @@ struct RandUsersApp: App {
 
     init() {
         self.userRepository = UserRepositoryImpl()
-        self.getUserListUseCase = GetUserListUseCaseImpl(userRepository: userRepository)
+        self.getUserListUseCase = GetUserListUseCaseImpl(
+            userRepository: userRepository
+        )
     }
 
     var body: some Scene {
