@@ -30,7 +30,8 @@ extension Results {
                     phone: result.phone,
                     picture: result.picture?.large,
                     registeredDate: result.registered?.date?.toDate(),
-                    surname: result.name?.last
+                    surname: result.name?.last,
+                    thumbnailPicture: result.picture?.thumbnail
                 )
         }
     }
