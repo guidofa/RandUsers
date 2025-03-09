@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  GetUserListUseCase.swift
 //  RandUsers
 //
 //  Created by Guido Fabio on 7/3/25.
