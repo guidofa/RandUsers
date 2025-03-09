@@ -12,7 +12,7 @@ private extension CGFloat {
 }
 
 private extension LocalizedStringKey {
-    static var genericError: Self { "Ooops... there was an error!" }
+    static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
 }
 
@@ -27,19 +27,17 @@ struct UserListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                ZStack {
-                    ListView(viewModel: viewModel, selectedUser: $selectedUser)
+            VStack(spacing: 16) {
+                ListView(viewModel: viewModel, selectedUser: $selectedUser)
 
-                    if viewModel.state == .loading {
-                        Color.black.opacity(0.5)
-                            .edgesIgnoringSafeArea(.all)
-                            .overlay(
-                                ProgressView()
-                                    .controlSize(.large)
-                                    .tint(.white)
-                            )
-                    }
+                if viewModel.state == .loading {
+                    ProgressView()
+                        .controlSize(.large)
+                        .tint(.ruPrimary)
+                } else if viewModel.state == .error {
+                    Text(.genericError)
+                        .foregroundColor(.red)
+                        .font(.callout)
                 }
             }
             .navigationTitle(.navigationTitle)
@@ -94,7 +92,7 @@ private struct UserView: View {
                         ProgressView()
                     }
                 }
-                .scaledToFill()
+                .scaledToFit()
                 .frame(width: 50, height: 50)
                 .clipShape(Circle())
                 .overlay(Circle().stroke(Color.black, lineWidth: 1))
