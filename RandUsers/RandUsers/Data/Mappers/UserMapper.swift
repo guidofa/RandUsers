@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Results {
+extension Result {
     func toUserModels() -> [UserModel] {
         guard let results else { return [] }
 

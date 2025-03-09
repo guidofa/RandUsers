@@ -50,7 +50,7 @@ struct UserRepositoryImpl: UserRepository {
 
             print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
 
-            return try JSONDecoder().decode(Results.self, from: data).toUserModels()
+            return try JSONDecoder().decode(Result.self, from: data).toUserModels()
         } catch let error {
             throw error
         }
