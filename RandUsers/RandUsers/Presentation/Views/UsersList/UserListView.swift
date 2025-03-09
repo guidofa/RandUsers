@@ -40,7 +40,11 @@ struct UserListView: View {
                     }
                 })
 
-                ListView(viewModel: viewModel, selectedUser: $selectedUser)
+                ListView(
+                    viewModel: viewModel,
+                    selectedUser: $selectedUser,
+                    searchText: $searchText
+                )
 
                 if viewModel.state == .loading {
                     ProgressView()
@@ -67,18 +71,19 @@ private struct ListView: View {
     @StateObject var viewModel: UserListViewModel
 
     @Binding var selectedUser: UserModel?
+    @Binding var searchText: String
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: .largePadding) {
-                ForEach(viewModel.usersList) { user in
+                ForEach(viewModel.usersListToShow) { user in
                     UserView(user: user)
                         .onTapGesture { selectedUser = user }
                         .onAppear { [weak viewModel] in
                             guard let viewModel = viewModel else { return }
-                            let isLastUser = user == viewModel.usersList.last
+                            let isLastUser = user == viewModel.usersListToShow.last
                             let isNotLoading = viewModel.state != .loading
-                            if isLastUser && isNotLoading {
+                            if isLastUser && isNotLoading && searchText.isEmpty {
                                 Task {
                                     await viewModel.trigger(.getUsersList)
                                 }
@@ -171,6 +176,9 @@ struct SearchView: View {
                 userRepository: UserRepositoryImpl(
                     userLocalRepository: UserLocalRepositoryImpl()
                 )
+            ),
+            searchUserUseCase: SearchUserUseCaseImpl(
+                userLocalRepository: UserLocalRepositoryImpl()
             )
         )
     )
