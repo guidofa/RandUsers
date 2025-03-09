@@ -65,7 +65,9 @@ private struct ListView: View {
                         .onAppear { [weak viewModel] in
                             if user == viewModel?.usersList.last {
                                 Task { [weak viewModel] in
-                                    await viewModel?.trigger(.getUsersList(2))
+                                    if viewModel?.state != .loading {
+                                        await viewModel?.trigger(.getUsersList(2))
+                                    }
                                 }
                             }
                         }
@@ -126,7 +128,9 @@ private struct UserView: View {
     UserListView(
         viewModel: .init(
             getUserListUseCase: GetUserListUseCaseImpl(
-                userRepository: UserRepositoryImpl()
+                userRepository: UserRepositoryImpl(
+                    userLocalRepository: UserLocalRepositoryImpl()
+                )
             )
         )
     )

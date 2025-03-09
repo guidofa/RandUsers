@@ -13,14 +13,21 @@ protocol UserRepository {
 
 struct UserRepositoryImpl: UserRepository {
     private let session: URLSession
+    private let userLocalRepository: UserLocalRepository
 
     init(
-        session: URLSession = .shared
+        session: URLSession = .shared,
+        userLocalRepository: UserLocalRepository
     ) {
         self.session = session
+        self.userLocalRepository = UserLocalRepositoryImpl()
     }
 
     func getUsers(page: Int, seed: String?) async throws -> ResultModel {
+        if let cachedResult = await userLocalRepository.getUserModel(page: page, seed: seed) {
+            return cachedResult
+        }
+
         do {
             var components = URLComponents(string: NetworkConstants.apiBaseURLString)
 
@@ -50,7 +57,13 @@ struct UserRepositoryImpl: UserRepository {
 
             print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
 
-            return try JSONDecoder().decode(ResultResponse.self, from: data).toResultModel()
+            let jsonResponse = try JSONDecoder().decode(ResultResponse.self, from: data)
+
+            let resultModel = jsonResponse.toResultModel()
+
+            await userLocalRepository.saveUserModel(resultModel)
+
+            return resultModel
         } catch let error {
             throw error
         }

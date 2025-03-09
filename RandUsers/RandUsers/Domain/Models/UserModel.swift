@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserModel: Equatable, Identifiable {
+struct UserModel: Equatable, Identifiable, Hashable {
     let id: String
     let email: String?
     let gender: String?
@@ -28,9 +28,41 @@ struct UserModel: Equatable, Identifiable {
     }
 }
 
-struct UserLocationModel {
+extension UserModel {
+    func mapToLocal() -> UserLocalResponse {
+        let userLocalResponse = UserLocalResponse()
+
+        userLocalResponse.id = id
+        userLocalResponse.email = email
+        userLocalResponse.gender = gender
+        userLocalResponse.location = location?.mapToLocal()
+        userLocalResponse.name = name
+        userLocalResponse.phone = phone
+        userLocalResponse.picture = picture
+        userLocalResponse.registeredDate = registeredDate
+        userLocalResponse.surname = surname
+        userLocalResponse.thumbnailPicture = thumbnailPicture
+
+        return userLocalResponse
+    }
+}
+
+struct UserLocationModel: Hashable {
     let city: String?
     let state: String?
     let streetName: String?
     let streetNumber: String?
+}
+
+extension UserLocationModel {
+    func mapToLocal() -> UserLocalLocationResponse {
+        let userLocalLocationResponse = UserLocalLocationResponse()
+
+        userLocalLocationResponse.city = city
+        userLocalLocationResponse.state = state
+        userLocalLocationResponse.streetName = streetName
+        userLocalLocationResponse.streetNumber = streetNumber
+
+        return userLocalLocationResponse
+    }
 }
