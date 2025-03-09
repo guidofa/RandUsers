@@ -14,9 +14,13 @@ struct RandUsersApp: App {
 
     private let getUserListUseCase: GetUserListUseCase
     private let userRepository: UserRepository
+    private let userLocalRepository: UserLocalRepository
 
     init() {
-        self.userRepository = UserRepositoryImpl()
+        self.userLocalRepository = UserLocalRepositoryImpl()
+        self.userRepository = UserRepositoryImpl(
+            userLocalRepository: userLocalRepository
+        )
         self.getUserListUseCase = GetUserListUseCaseImpl(
             userRepository: userRepository
         )
