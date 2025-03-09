@@ -19,6 +19,10 @@ class UserLocalResponse: Object {
    @Persisted var registeredDate: Date?
    @Persisted var surname: String?
    @Persisted var thumbnailPicture: String?
+
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 }
 
 class UserLocalLocationResponse: Object {
