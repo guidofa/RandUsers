@@ -10,14 +10,17 @@ import Foundation
 class UserListViewModel: ObservableObject {
     // MARK: - Published vars
 
-    @Published var state = ViewState.loading
+    @Published var state = ViewState.loaded
     @Published var usersList = [UserModel]()
+
+    // MARK: - Private vars
+
+    private var currentPage = 0
 
     // MARK: - Public Enums
 
     enum TriggerAction {
-        case getUsersList
-        case loadMore
+        case getUsersList(Int)
     }
 
     enum ViewState {
@@ -41,26 +44,18 @@ class UserListViewModel: ObservableObject {
 
     func trigger(_ action: TriggerAction) async {
         switch action {
-        case .getUsersList:
-            await getUsersList()
-
-        case .loadMore:
-            await loadMore()
+        case .getUsersList(let page):
+            await getUsersList(page: page)
         }
     }
 
     // MARK: - Private functions
 
-    private func loadMore() async {
-        // TODO: implement logic to load more
-        print("Load More")
-    }
-
-    private func getUsersList() async {
+    private func getUsersList(page: Int) async {
         do {
             await setLoadingState(state: .loading)
-
-            let response = try await getUserListUseCase.execute(page: 1, seed: nil)
+            self.currentPage += 1
+            let response = try await getUserListUseCase.execute(page: currentPage, seed: nil)
 
             await setUsersList(response)
 
@@ -74,12 +69,12 @@ class UserListViewModel: ObservableObject {
     // MARK: - MainActor methods
 
     @MainActor
-    func setUsersList(_ usersList: [UserModel]) {
-        self.usersList = usersList
+    private func setUsersList(_ usersList: [UserModel]) {
+        self.usersList += usersList
     }
 
     @MainActor
-    func setLoadingState(state: ViewState) {
+    private func setLoadingState(state: ViewState) {
         self.state = state
     }
 }

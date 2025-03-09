@@ -28,23 +28,17 @@ struct UserListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                switch viewModel.state {
-                case .loading:
-                    ProgressView()
-                        .controlSize(.large)
-                        .tint(.primary)
-
-                case .loaded:
-                    ListView(
-                        viewModel: viewModel,
-                        selectedUser: $selectedUser
-                    )
-
-                case .error:
-                    Text( .genericError)
-                        .foregroundStyle(.primary)
-                        .font(.title3)
-                        .background(Color.secondary)
+                ZStack {
+                    ListView(viewModel: viewModel, selectedUser: $selectedUser)
+                    if viewModel.state == .loading {
+                        Color.black.opacity(0.5)
+                            .edgesIgnoringSafeArea(.all)
+                            .overlay(
+                                ProgressView()
+                                    .controlSize(.large)
+                                    .tint(.white)
+                            )
+                    }
                 }
             }
             .navigationTitle(.navigationTitle)
@@ -53,7 +47,7 @@ struct UserListView: View {
             })
         }
         .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList)
+            await viewModel?.trigger(.getUsersList(1))
         }
     }
 }
@@ -72,7 +66,7 @@ private struct ListView: View {
                         .onAppear { [weak viewModel] in
                             if user == viewModel?.usersList.last {
                                 Task { [weak viewModel] in
-                                    await viewModel?.trigger(.loadMore)
+                                    await viewModel?.trigger(.getUsersList(2))
                                 }
                             }
                         }
