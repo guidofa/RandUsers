@@ -18,7 +18,12 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
     private let realm: Realm!
 
     init() {
-        realm = try? Realm()
+        do {
+            realm = try Realm()
+        } catch {
+            print("Error initializing Realm: \(error.localizedDescription)")
+            realm = nil
+        }
     }
 
     @MainActor
