@@ -1,15 +1,11 @@
 //
-//  UserRepository.swift
+//  UserRepositoryImpl.swift
 //  RandUsers
 //
 //  Created by Guido Fabio on 7/3/25.
 //
 
 import Foundation
-
-protocol UserRepository {
-    func getUsers(page: Int, seed: String?) async throws -> ResultModel
-}
 
 struct UserRepositoryImpl: UserRepository {
     private let session: URLSession
