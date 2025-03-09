@@ -8,7 +8,7 @@
 import Foundation
 
 protocol UserRepository {
-    func getUsers(page: Int, seed: String?) async throws -> [UserModel]
+    func getUsers(page: Int, seed: String?) async throws -> ResultModel
 }
 
 struct UserRepositoryImpl: UserRepository {
@@ -20,7 +20,7 @@ struct UserRepositoryImpl: UserRepository {
         self.session = session
     }
 
-    func getUsers(page: Int, seed: String?) async throws -> [UserModel] {
+    func getUsers(page: Int, seed: String?) async throws -> ResultModel {
         do {
             var components = URLComponents(string: NetworkConstants.apiBaseURLString)
 
@@ -50,7 +50,7 @@ struct UserRepositoryImpl: UserRepository {
 
             print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
 
-            return try JSONDecoder().decode(Results.self, from: data).toUserModels()
+            return try JSONDecoder().decode(ResultResponse.self, from: data).toResultModel()
         } catch let error {
             throw error
         }

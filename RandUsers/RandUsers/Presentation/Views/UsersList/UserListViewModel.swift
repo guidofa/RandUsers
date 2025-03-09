@@ -8,33 +8,70 @@
 import Foundation
 
 class UserListViewModel: ObservableObject {
+    // MARK: - Published vars
+
+    @Published var state = ViewState.loaded
+    @Published var usersList = [UserModel]()
+
+    // MARK: - Private vars
+
+    private var currentResult: ResultModel?
+
+    // MARK: - Public Enums
+
+    enum TriggerAction {
+        case getUsersList(Int)
+    }
+
     enum ViewState {
         case loading
         case loaded
         case error
     }
 
+    // MARK: - UseCases
+
     private let getUserListUseCase: GetUserListUseCase
+
+    // MARK: - Init
 
     init(getUserListUseCase: GetUserListUseCase, usersList: [UserModel] = [UserModel]()) {
         self.getUserListUseCase = getUserListUseCase
         self.usersList = usersList
     }
 
+    // MARK: - Public Functions
+
     func trigger(_ action: TriggerAction) async {
         switch action {
-        case .getUsersList:
-            await getUsersList()
+        case .getUsersList(let page):
+            await getUsersList(page: page)
         }
     }
 
-    private func getUsersList() async {
+    // MARK: - Private functions
+
+    private func getUsersList(page: Int) async {
         do {
             await setLoadingState(state: .loading)
 
-            let response = try await getUserListUseCase.execute(page: 1, seed: nil)
+            let result = try await getUserListUseCase.execute(
+                page: currentResult?.page ?? 1,
+                seed: currentResult?.seed
+            )
 
-            await setUsersList(response)
+            guard let page = result.page else {
+                await setLoadingState(state: .error)
+                return
+            }
+
+            self.currentResult = .init(
+                page: page + 1,
+                seed: result.seed,
+                users: result.users
+            )
+
+            await setUsersList(result.users)
 
             await setLoadingState(state: .loaded)
         } catch let error {
@@ -46,23 +83,12 @@ class UserListViewModel: ObservableObject {
     // MARK: - MainActor methods
 
     @MainActor
-    func setUsersList(_ usersList: [UserModel]) {
-        self.usersList = usersList
+    private func setUsersList(_ usersList: [UserModel]) {
+        self.usersList.append(contentsOf: usersList)
     }
 
     @MainActor
-    func setLoadingState(state: ViewState) {
+    private func setLoadingState(state: ViewState) {
         self.state = state
-    }
-
-    // MARK: - Published vars
-
-    @Published var state = ViewState.loading
-    @Published var usersList = [UserModel]()
-
-    // MARK: - Triggers
-
-    enum TriggerAction {
-        case getUsersList
     }
 }

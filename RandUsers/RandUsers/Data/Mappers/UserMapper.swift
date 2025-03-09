@@ -7,14 +7,12 @@
 
 import Foundation
 
-extension Results {
+extension ResultResponse {
     func toUserModels() -> [UserModel] {
         guard let results else { return [] }
 
         return results.compactMap { result in
-                guard let id = result.login?.uuid else {
-                    return nil
-                }
+                guard let id = result.login?.uuid else { return nil }
 
                 return UserModel(
                     id: id,

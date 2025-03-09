@@ -12,7 +12,7 @@ private extension CGFloat {
 }
 
 private extension LocalizedStringKey {
-    static var genericError: Self { "Ooops... there was an error!" }
+    static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
 }
 
@@ -27,30 +27,17 @@ struct UserListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
+            VStack(spacing: 16) {
+                ListView(viewModel: viewModel, selectedUser: $selectedUser)
+
+                if viewModel.state == .loading {
                     ProgressView()
                         .controlSize(.large)
-                        .tint(.primary)
-
-                case .loaded:
-                    ScrollView {
-                        LazyVStack(spacing: .largePadding) {
-                            ForEach(viewModel.usersList) { user in
-                                UserView(user: user)
-                                    .onTapGesture {
-                                        selectedUser = user
-                                    }
-                            }
-                        }
-                    }
-
-                case .error:
-                    Text( .genericError)
-                        .foregroundStyle(.primary)
-                        .font(.title3)
-                        .background(Color.secondary)
+                        .tint(.ruPrimary)
+                } else if viewModel.state == .error {
+                    Text(.genericError)
+                        .foregroundColor(.red)
+                        .font(.callout)
                 }
             }
             .navigationTitle(.navigationTitle)
@@ -59,12 +46,36 @@ struct UserListView: View {
             })
         }
         .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList)
+            await viewModel?.trigger(.getUsersList(1))
         }
     }
 }
 
-struct UserView: View {
+private struct ListView: View {
+    @StateObject var viewModel: UserListViewModel
+
+    @Binding var selectedUser: UserModel?
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: .largePadding) {
+                ForEach(viewModel.usersList) { user in
+                    UserView(user: user)
+                        .onTapGesture { selectedUser = user }
+                        .onAppear { [weak viewModel] in
+                            if user == viewModel?.usersList.last {
+                                Task { [weak viewModel] in
+                                    await viewModel?.trigger(.getUsersList(2))
+                                }
+                            }
+                        }
+                }
+            }
+        }
+    }
+}
+
+private struct UserView: View {
     let user: UserModel
 
     var body: some View {
@@ -81,7 +92,7 @@ struct UserView: View {
                         ProgressView()
                     }
                 }
-                .scaledToFill()
+                .scaledToFit()
                 .frame(width: 50, height: 50)
                 .clipShape(Circle())
                 .overlay(Circle().stroke(Color.black, lineWidth: 1))
@@ -95,16 +106,18 @@ struct UserView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(user.phone ?? .empty)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.ruPrimary)
 
                     Text(user.email ?? .empty)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.ruPrimary)
                 }
             }
+
+            Spacer(minLength: 4)
         }
         .padding(8)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.secondary).shadow(radius: 4))
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.ruSecondary).shadow(radius: 4))
         .padding(.horizontal, 8)
     }
 }

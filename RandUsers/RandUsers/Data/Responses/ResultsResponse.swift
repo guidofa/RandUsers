@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Results: Codable {
+struct ResultResponse: Codable {
     let info: InfoResponse
     let results: [UserResponse]?
 }
