@@ -14,21 +14,37 @@ private extension CGFloat {
 private extension LocalizedStringKey {
     static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
+    static var searchPlaceholder: Self { "Search by name, surname or email" }
 }
 
 private extension String {
     static var defaultProfileImageName: String { "person.fill" }
+    static var searchIconName: String { "magnifyingglass" }
 }
 
 struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
+
+    @State private var debouncedSearchText: String = .empty
+    @State private var searchText: String = .empty
 
     @State private var selectedUser: UserModel?
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                ListView(viewModel: viewModel, selectedUser: $selectedUser)
+                SearchView(searchText: $searchText, onDebounce: { value in
+                    debouncedSearchText = value
+                    Task { [weak viewModel] in
+                        await viewModel?.trigger(.filter(searchTerm: value))
+                    }
+                })
+
+                ListView(
+                    viewModel: viewModel,
+                    selectedUser: $selectedUser,
+                    searchText: $searchText
+                )
 
                 if viewModel.state == .loading {
                     ProgressView()
@@ -46,7 +62,7 @@ struct UserListView: View {
             })
         }
         .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList(1))
+            await viewModel?.trigger(.getUsersList)
         }
     }
 }
@@ -55,19 +71,21 @@ private struct ListView: View {
     @StateObject var viewModel: UserListViewModel
 
     @Binding var selectedUser: UserModel?
+    @Binding var searchText: String
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: .largePadding) {
-                ForEach(viewModel.usersList) { user in
+                ForEach(viewModel.usersListToShow) { user in
                     UserView(user: user)
                         .onTapGesture { selectedUser = user }
                         .onAppear { [weak viewModel] in
-                            if user == viewModel?.usersList.last {
-                                Task { [weak viewModel] in
-                                    if viewModel?.state != .loading {
-                                        await viewModel?.trigger(.getUsersList(2))
-                                    }
+                            guard let viewModel = viewModel else { return }
+                            let isLastUser = user == viewModel.usersListToShow.last
+                            let isNotLoading = viewModel.state != .loading
+                            if isLastUser && isNotLoading && searchText.isEmpty {
+                                Task {
+                                    await viewModel.trigger(.getUsersList)
                                 }
                             }
                         }
@@ -124,6 +142,33 @@ private struct UserView: View {
     }
 }
 
+struct SearchView: View {
+    @Binding var searchText: String
+    var onDebounce: (String) -> Void
+    @State private var debounceTimer: Timer?
+
+    var body: some View {
+        HStack {
+            Image(systemName: .searchIconName)
+                .foregroundColor(.ruPrimary)
+            TextField(.searchPlaceholder, text: $searchText)
+                .foregroundColor(.ruPrimary)
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.ruPrimary, lineWidth: 1)
+        )
+        .padding(.horizontal)
+        .onChange(of: searchText) { newValue in
+            debounceTimer?.invalidate()
+            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
+                onDebounce(newValue)
+            }
+        }
+    }
+}
+
 #Preview {
     UserListView(
         viewModel: .init(
@@ -131,6 +176,9 @@ private struct UserView: View {
                 userRepository: UserRepositoryImpl(
                     userLocalRepository: UserLocalRepositoryImpl()
                 )
+            ),
+            searchUserUseCase: SearchUserUseCaseImpl(
+                userLocalRepository: UserLocalRepositoryImpl()
             )
         )
     )

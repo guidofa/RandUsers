@@ -11,7 +11,8 @@ class UserListViewModel: ObservableObject {
     // MARK: - Published vars
 
     @Published var state = ViewState.loaded
-    @Published var usersList = [UserModel]()
+    @Published var usersListToShow = [UserModel]()
+    private var usersList: [UserModel] = []
 
     // MARK: - Private vars
 
@@ -20,38 +21,58 @@ class UserListViewModel: ObservableObject {
     // MARK: - Public Enums
 
     enum TriggerAction {
-        case getUsersList(Int)
+        case filter(searchTerm: String)
+        case getUsersList
     }
 
     enum ViewState {
-        case loading
-        case loaded
         case error
+        case loaded
+        case loading
     }
 
     // MARK: - UseCases
 
     private let getUserListUseCase: GetUserListUseCase
+    private let searchUserUseCase: SearchUserUseCase
 
     // MARK: - Init
 
-    init(getUserListUseCase: GetUserListUseCase, usersList: [UserModel] = [UserModel]()) {
+    init(
+        getUserListUseCase: GetUserListUseCase,
+        searchUserUseCase: SearchUserUseCase,
+        usersList: [UserModel] = [UserModel]()
+    ) {
         self.getUserListUseCase = getUserListUseCase
-        self.usersList = usersList
+        self.searchUserUseCase = searchUserUseCase
+        self.usersListToShow = usersList
     }
 
     // MARK: - Public Functions
 
     func trigger(_ action: TriggerAction) async {
         switch action {
-        case .getUsersList(let page):
-            await getUsersList(page: page)
+        case .filter(let searchTerm):
+            if searchTerm.isEmpty {
+                await setFilteredUsersList(usersList)
+                return
+            }
+
+            await searchUsers(withTerm: searchTerm)
+
+        case .getUsersList:
+            await getUsersList()
         }
     }
 
     // MARK: - Private functions
 
-    private func getUsersList(page: Int) async {
+    private func searchUsers(withTerm searchTerm: String) async {
+        let filteredUsers = await searchUserUseCase.execute(searchTerm: searchTerm)
+        await setFilteredUsersList(filteredUsers)
+    }
+
+    private func getUsersList() async {
         do {
             await setLoadingState(state: .loading)
 
@@ -71,7 +92,8 @@ class UserListViewModel: ObservableObject {
                 users: result.users
             )
 
-            await setUsersList(result.users)
+            self.usersList.append(contentsOf: result.users)
+            await setUsersListToShow(result.users)
 
             await setLoadingState(state: .loaded)
         } catch let error {
@@ -83,8 +105,13 @@ class UserListViewModel: ObservableObject {
     // MARK: - MainActor methods
 
     @MainActor
-    private func setUsersList(_ usersList: [UserModel]) {
-        self.usersList.append(contentsOf: usersList)
+    private func setFilteredUsersList(_ usersList: [UserModel]) {
+        self.usersListToShow = usersList
+    }
+
+    @MainActor
+    private func setUsersListToShow(_ usersList: [UserModel]) {
+        self.usersListToShow.append(contentsOf: usersList)
     }
 
     @MainActor

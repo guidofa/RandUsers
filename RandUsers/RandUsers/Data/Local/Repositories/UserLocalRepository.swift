@@ -11,6 +11,7 @@ import RealmSwift
 protocol UserLocalRepository {
     func getUserModel(page: Int, seed: String?) async -> ResultModel?
     func saveUserModel(_ userModel: ResultModel) async
+    func searchUsers(searchTerm: String) async -> [UserModel]
 }
 
 struct UserLocalRepositoryImpl: UserLocalRepository {
@@ -18,7 +19,12 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
     private let realm: Realm!
 
     init() {
-        realm = try? Realm()
+        do {
+            realm = try Realm()
+        } catch {
+            print("Error initializing Realm: \(error.localizedDescription)")
+            realm = nil
+        }
     }
 
     @MainActor
@@ -55,6 +61,13 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
                 realm.add(resultLocal)
             }
         }
+    }
+
+    @MainActor
+    func searchUsers(searchTerm: String) async -> [UserModel] {
+        let predicate = NSPredicate(format: "((name CONTAINS[c] %@) OR (surname CONTAINS[c] %@) OR (email CONTAINS[c] %@))", searchTerm, searchTerm, searchTerm)
+        let results = realm.objects(UserLocalResponse.self).filter(predicate)
+        return results.map { $0.mapToModel() }
     }
 
     private func uniqueElements<T: Hashable>(from array: [T]) -> [T] {
