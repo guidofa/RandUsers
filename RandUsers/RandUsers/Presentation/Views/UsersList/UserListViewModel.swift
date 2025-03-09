@@ -15,7 +15,7 @@ class UserListViewModel: ObservableObject {
 
     // MARK: - Private vars
 
-    private var currentPage = 0
+    private var currentResult: ResultModel?
 
     // MARK: - Public Enums
 
@@ -54,10 +54,24 @@ class UserListViewModel: ObservableObject {
     private func getUsersList(page: Int) async {
         do {
             await setLoadingState(state: .loading)
-            self.currentPage += 1
-            let response = try await getUserListUseCase.execute(page: currentPage, seed: nil)
 
-            await setUsersList(response)
+            let result = try await getUserListUseCase.execute(
+                page: currentResult?.page ?? 1,
+                seed: currentResult?.seed
+            )
+
+            guard let page = result.page else {
+                await setLoadingState(state: .error)
+                return
+            }
+
+            self.currentResult = .init(
+                page: page + 1,
+                seed: result.seed,
+                users: result.users
+            )
+
+            await setUsersList(result.users)
 
             await setLoadingState(state: .loaded)
         } catch let error {
@@ -70,7 +84,7 @@ class UserListViewModel: ObservableObject {
 
     @MainActor
     private func setUsersList(_ usersList: [UserModel]) {
-        self.usersList += usersList
+        self.usersList.append(contentsOf: usersList)
     }
 
     @MainActor

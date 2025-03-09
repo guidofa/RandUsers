@@ -30,6 +30,7 @@ struct UserListView: View {
             Group {
                 ZStack {
                     ListView(viewModel: viewModel, selectedUser: $selectedUser)
+
                     if viewModel.state == .loading {
                         Color.black.opacity(0.5)
                             .edgesIgnoringSafeArea(.all)
