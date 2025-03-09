@@ -14,20 +14,32 @@ private extension CGFloat {
 private extension LocalizedStringKey {
     static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
+    static var searchPlaceholder: Self { "Search by name, surname or email" }
 }
 
 private extension String {
     static var defaultProfileImageName: String { "person.fill" }
+    static var searchIconName: String { "magnifyingglass" }
 }
 
 struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
+
+    @State private var debouncedSearchText: String = .empty
+    @State private var searchText: String = .empty
 
     @State private var selectedUser: UserModel?
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
+                SearchView(searchText: $searchText, onDebounce: { value in
+                    debouncedSearchText = value
+                    Task { [weak viewModel] in
+                        await viewModel?.trigger(.filter(searchTerm: value))
+                    }
+                })
+
                 ListView(viewModel: viewModel, selectedUser: $selectedUser)
 
                 if viewModel.state == .loading {
@@ -46,7 +58,7 @@ struct UserListView: View {
             })
         }
         .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList(1))
+            await viewModel?.trigger(.getUsersList)
         }
     }
 }
@@ -63,11 +75,12 @@ private struct ListView: View {
                     UserView(user: user)
                         .onTapGesture { selectedUser = user }
                         .onAppear { [weak viewModel] in
-                            if user == viewModel?.usersList.last {
-                                Task { [weak viewModel] in
-                                    if viewModel?.state != .loading {
-                                        await viewModel?.trigger(.getUsersList(2))
-                                    }
+                            guard let viewModel = viewModel else { return }
+                            let isLastUser = user == viewModel.usersList.last
+                            let isNotLoading = viewModel.state != .loading
+                            if isLastUser && isNotLoading {
+                                Task {
+                                    await viewModel.trigger(.getUsersList)
                                 }
                             }
                         }
@@ -121,6 +134,33 @@ private struct UserView: View {
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.ruSecondary).shadow(radius: 4))
         .padding(.horizontal, 8)
+    }
+}
+
+struct SearchView: View {
+    @Binding var searchText: String
+    var onDebounce: (String) -> Void
+    @State private var debounceTimer: Timer?
+
+    var body: some View {
+        HStack {
+            Image(systemName: .searchIconName)
+                .foregroundColor(.ruPrimary)
+            TextField(.searchPlaceholder, text: $searchText)
+                .foregroundColor(.ruPrimary)
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.ruPrimary, lineWidth: 1)
+        )
+        .padding(.horizontal)
+        .onChange(of: searchText) { newValue in
+            debounceTimer?.invalidate()
+            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
+                onDebounce(newValue)
+            }
+        }
     }
 }
 

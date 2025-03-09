@@ -20,13 +20,14 @@ class UserListViewModel: ObservableObject {
     // MARK: - Public Enums
 
     enum TriggerAction {
-        case getUsersList(Int)
+        case filter(searchTerm: String)
+        case getUsersList
     }
 
     enum ViewState {
-        case loading
-        case loaded
         case error
+        case loaded
+        case loading
     }
 
     // MARK: - UseCases
@@ -44,14 +45,17 @@ class UserListViewModel: ObservableObject {
 
     func trigger(_ action: TriggerAction) async {
         switch action {
-        case .getUsersList(let page):
-            await getUsersList(page: page)
+        case .filter(let searchTerm):
+            print("Filter triggered with \(searchTerm)")
+
+        case .getUsersList:
+            await getUsersList()
         }
     }
 
     // MARK: - Private functions
 
-    private func getUsersList(page: Int) async {
+    private func getUsersList() async {
         do {
             await setLoadingState(state: .loading)
 
