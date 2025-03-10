@@ -8,7 +8,10 @@
 import SwiftUI
 
 private extension CGFloat {
-    static var largePadding: Self { 32 }
+    static var smallPadding: Self { 4 }
+    static var mediumPadding: Self { 8 }
+    static var defaultPadding: Self { 12 }
+    static var largePadding: Self { 16 }
 }
 
 private extension LocalizedStringKey {
@@ -18,8 +21,9 @@ private extension LocalizedStringKey {
 }
 
 private extension String {
-    static var defaultProfileImageName: String { "person.fill" }
-    static var searchIconName: String { "magnifyingglass" }
+    static var deleteIcon: Self { "xmark.circle.fill" }
+    static var defaultProfileImageName: Self { "person.fill" }
+    static var searchIconName: Self { "magnifyingglass" }
 }
 
 struct UserListView: View {
@@ -32,7 +36,7 @@ struct UserListView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
+            VStack(spacing: .smallPadding) {
                 SearchView(searchText: $searchText, onDebounce: { value in
                     debouncedSearchText = value
                     Task { [weak viewModel] in
@@ -98,6 +102,39 @@ private struct ListView: View {
                     }
                 }
             }
+            .padding(.vertical, .smallPadding)
+        }
+    }
+}
+
+struct SearchView: View {
+    @State private var debounceTimer: Timer?
+    @Binding var searchText: String
+
+    var onDebounce: (String) -> Void
+
+    var body: some View {
+        HStack {
+            Image(systemName: .searchIconName)
+                .foregroundColor(.ruPrimary)
+
+            TextField(.searchPlaceholder, text: $searchText)
+                .foregroundColor(.ruPrimary)
+                .padding(.mediumPadding)
+        }
+        .padding(.horizontal, .largePadding)
+        .background(
+            RoundedRectangle(cornerRadius: .defaultPadding)
+                .fill(Color(UIColor.systemFill))
+                .shadow(color: Color.black.opacity(0.1), radius: .smallPadding, x: 0, y: 1)
+        )
+        .padding(.horizontal, .defaultPadding)
+        .padding(.vertical, .mediumPadding)
+        .onChange(of: searchText) { newValue in
+            debounceTimer?.invalidate()
+            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
+                onDebounce(newValue)
+            }
         }
     }
 }
@@ -107,80 +144,61 @@ private struct UserView: View {
     let onDelete: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            if let picture = user.picture {
+        HStack(alignment: .top, spacing: .largePadding) {
+            if let picture = user.thumbnailPicture {
                 AsyncImage(url: URL(string: picture)) { phase in
                     if let image = phase.image {
-                        image.resizable()
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                     } else if phase.error != nil {
                         Image(systemName: .defaultProfileImageName)
                             .resizable()
+                            .scaledToFit()
                             .foregroundColor(.gray)
                     } else {
                         ProgressView()
                     }
                 }
-                .scaledToFit()
-                .frame(width: 50, height: 50)
+                .frame(width: 60, height: 60)
                 .clipShape(Circle())
-                .overlay(Circle().stroke(Color.black, lineWidth: 1))
-                .shadow(radius: 1)
+                .overlay(Circle().stroke(.ruPrimary, lineWidth: 1))
+                .shadow(radius: .smallPadding)
             }
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: .smallPadding) {
                 Text(user.completeName)
                     .font(.headline)
+                    .foregroundColor(.primary)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(user.phone ?? .empty)
-                        .font(.subheadline)
-                        .foregroundColor(.ruPrimary)
+                VStack(alignment: .leading, spacing: .smallPadding) {
+                    if let phone = user.phone, !phone.isEmpty {
+                        Text(phone)
+                    }
 
-                    Text(user.email ?? .empty)
-                        .font(.subheadline)
-                        .foregroundColor(.ruPrimary)
+                    if let email = user.email, !email.isEmpty {
+                        Text(email)
+                    }
                 }
+                .font(.footnote)
+                .foregroundColor(.ruPrimary)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: .smallPadding)
 
-            Button {
-                onDelete()
-            } label: {
-                Image(systemName: "xmark.circle")
+            Button(action: onDelete) {
+                Image(systemName: .deleteIcon)
+                    .font(.title2)
                     .foregroundColor(.red)
             }
         }
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.ruSecondary).shadow(radius: 4))
-        .padding(.horizontal, 8)
-    }
-}
-
-struct SearchView: View {
-    @Binding var searchText: String
-    var onDebounce: (String) -> Void
-    @State private var debounceTimer: Timer?
-
-    var body: some View {
-        HStack {
-            Image(systemName: .searchIconName)
-                .foregroundColor(.ruPrimary)
-            TextField(.searchPlaceholder, text: $searchText)
-                .foregroundColor(.ruPrimary)
-        }
-        .padding(10)
+        .padding(.defaultPadding)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.ruPrimary, lineWidth: 1)
+            RoundedRectangle(cornerRadius: .defaultPadding)
+                .fill(Color(.ruTeritiary))
+                .shadow(color: Color.black.opacity(0.5), radius: .smallPadding, x: 0, y: 2)
         )
-        .padding(.horizontal)
-        .onChange(of: searchText) { newValue in
-            debounceTimer?.invalidate()
-            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
-                onDebounce(newValue)
-            }
-        }
+        .padding(.horizontal, .mediumPadding)
     }
 }
 

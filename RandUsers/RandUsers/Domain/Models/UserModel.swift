@@ -54,6 +54,10 @@ struct UserLocationModel: Hashable {
     let state: String?
     let streetName: String?
     let streetNumber: String?
+
+    var address: String? {
+        "\(streetName ?? .empty) \(streetNumber ?? .empty), \(city ?? .empty), \(state ?? .empty)"
+    }
 }
 
 extension UserLocationModel {
