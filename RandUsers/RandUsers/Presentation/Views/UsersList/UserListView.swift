@@ -162,7 +162,7 @@ private struct UserView: View {
                 }
                 .frame(width: 60, height: 60)
                 .clipShape(Circle())
-                .overlay(Circle().stroke(.ruPrimary, lineWidth: 4))
+                .overlay(Circle().stroke(.ruPrimary, lineWidth: 1))
                 .shadow(radius: .smallPadding)
             }
 
