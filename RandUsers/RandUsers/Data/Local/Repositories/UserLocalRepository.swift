@@ -9,6 +9,7 @@ import Foundation
 import RealmSwift
 
 protocol UserLocalRepository {
+    func deleteUser(userModel: UserModel) async -> UserModel?
     func getUserModel(page: Int, seed: String?) async -> ResultModel?
     func saveUserModel(_ userModel: ResultModel) async
     func searchUsers(searchTerm: String) async -> [UserModel]
@@ -25,6 +26,14 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
             print("Error initializing Realm: \(error.localizedDescription)")
             realm = nil
         }
+    }
+
+    @MainActor
+    func deleteUser(userModel: UserModel) async -> UserModel? {
+        try? realm.write {
+            realm.add(userModel.mapToLocal(), update: .modified)
+        }
+        return realm.object(ofType: UserLocalResponse.self, forPrimaryKey: userModel.id)?.mapToModel()
     }
 
     @MainActor
@@ -65,7 +74,12 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
 
     @MainActor
     func searchUsers(searchTerm: String) async -> [UserModel] {
-        let predicate = NSPredicate(format: "((name CONTAINS[c] %@) OR (surname CONTAINS[c] %@) OR (email CONTAINS[c] %@))", searchTerm, searchTerm, searchTerm)
+        let predicate = NSPredicate(
+            format: "((name CONTAINS[c] %@) OR (surname CONTAINS[c] %@) OR (email CONTAINS[c] %@))",
+            searchTerm,
+            searchTerm,
+            searchTerm
+        )
         let results = realm.objects(UserLocalResponse.self).filter(predicate)
         return results.map { $0.mapToModel() }
     }

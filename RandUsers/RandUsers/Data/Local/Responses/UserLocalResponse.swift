@@ -12,6 +12,7 @@ class UserLocalResponse: Object {
    @Persisted var id: String
    @Persisted var email: String?
    @Persisted var gender: String?
+   @Persisted var isDeleted: Bool?
    @Persisted var location: UserLocalLocationResponse?
    @Persisted var name: String?
    @Persisted var phone: String?

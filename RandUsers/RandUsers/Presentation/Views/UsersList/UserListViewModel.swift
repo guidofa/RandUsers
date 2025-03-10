@@ -12,15 +12,16 @@ class UserListViewModel: ObservableObject {
 
     @Published var state = ViewState.loaded
     @Published var usersListToShow = [UserModel]()
-    private var usersList: [UserModel] = []
 
     // MARK: - Private vars
 
     private var currentResult: ResultModel?
+    private var usersList: [UserModel] = []
 
     // MARK: - Public Enums
 
     enum TriggerAction {
+        case deleteUser(UserModel)
         case filter(searchTerm: String)
         case getUsersList
     }
@@ -33,16 +34,19 @@ class UserListViewModel: ObservableObject {
 
     // MARK: - UseCases
 
+    private let deleteUserUseCase: DeleteUserUseCase
     private let getUserListUseCase: GetUserListUseCase
     private let searchUserUseCase: SearchUserUseCase
 
     // MARK: - Init
 
     init(
+        deleteUserUseCase: DeleteUserUseCase,
         getUserListUseCase: GetUserListUseCase,
         searchUserUseCase: SearchUserUseCase,
         usersList: [UserModel] = [UserModel]()
     ) {
+        self.deleteUserUseCase = deleteUserUseCase
         self.getUserListUseCase = getUserListUseCase
         self.searchUserUseCase = searchUserUseCase
         self.usersListToShow = usersList
@@ -52,6 +56,9 @@ class UserListViewModel: ObservableObject {
 
     func trigger(_ action: TriggerAction) async {
         switch action {
+        case .deleteUser(let user):
+            await deleteUser(user)
+
         case .filter(let searchTerm):
             if searchTerm.isEmpty {
                 await setFilteredUsersList(usersList)
@@ -67,9 +74,16 @@ class UserListViewModel: ObservableObject {
 
     // MARK: - Private functions
 
-    private func searchUsers(withTerm searchTerm: String) async {
-        let filteredUsers = await searchUserUseCase.execute(searchTerm: searchTerm)
-        await setFilteredUsersList(filteredUsers)
+    private func deleteUser(_ user: UserModel) async {
+        var userToDelete = user
+        userToDelete.isDeleted = true
+
+        guard let deletedUser = await deleteUserUseCase.execute(userModel: userToDelete),
+              let index = usersList.firstIndex(where: { $0.id == deletedUser.id })
+        else { return }
+
+        usersList[index].isDeleted = true
+        await setFilteredUsersList(usersList)
     }
 
     private func getUsersList() async {
@@ -102,16 +116,21 @@ class UserListViewModel: ObservableObject {
         }
     }
 
+    private func searchUsers(withTerm searchTerm: String) async {
+        let filteredUsers = await searchUserUseCase.execute(searchTerm: searchTerm)
+        await setFilteredUsersList(filteredUsers)
+    }
+
     // MARK: - MainActor methods
 
     @MainActor
     private func setFilteredUsersList(_ usersList: [UserModel]) {
-        self.usersListToShow = usersList
+        self.usersListToShow = usersList.filter({ !$0.isDeleted })
     }
 
     @MainActor
     private func setUsersListToShow(_ usersList: [UserModel]) {
-        self.usersListToShow.append(contentsOf: usersList)
+        self.usersListToShow.append(contentsOf: usersList.filter({ !$0.isDeleted }))
     }
 
     @MainActor
