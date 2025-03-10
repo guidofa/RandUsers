@@ -11,6 +11,7 @@ struct UserModel: Equatable, Identifiable, Hashable {
     let id: String
     let email: String?
     let gender: String?
+    var isDeleted: Bool = false
     let location: UserLocationModel?
     let name: String?
     let phone: String?
@@ -35,6 +36,7 @@ extension UserModel {
         userLocalResponse.id = id
         userLocalResponse.email = email
         userLocalResponse.gender = gender
+        userLocalResponse.isDeleted = isDeleted
         userLocalResponse.location = location?.mapToLocal()
         userLocalResponse.name = name
         userLocalResponse.phone = phone

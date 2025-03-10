@@ -11,6 +11,7 @@ import SwiftUI
 struct RandUsersApp: App {
     // MARK: - UseCases
 
+    private let deleteUserUseCase: DeleteUserUseCase
     private let getUserListUseCase: GetUserListUseCase
     private let searchUserUseCase: SearchUserUseCase
 
@@ -22,6 +23,7 @@ struct RandUsersApp: App {
     init() {
         self.userLocalRepository = UserLocalRepositoryImpl()
         self.userRepository = UserRepositoryImpl(userLocalRepository: userLocalRepository)
+        self.deleteUserUseCase = DeleteUserUseCaseImpl(userLocalRepository: userLocalRepository)
         self.getUserListUseCase = GetUserListUseCaseImpl(userRepository: userRepository)
         self.searchUserUseCase = SearchUserUseCaseImpl(userLocalRepository: userLocalRepository)
     }
@@ -30,6 +32,7 @@ struct RandUsersApp: App {
         WindowGroup {
             UserListView(
                 viewModel: UserListViewModel(
+                    deleteUserUseCase: deleteUserUseCase,
                     getUserListUseCase: getUserListUseCase,
                     searchUserUseCase: searchUserUseCase
                 )

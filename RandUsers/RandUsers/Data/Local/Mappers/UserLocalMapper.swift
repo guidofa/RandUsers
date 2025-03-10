@@ -13,6 +13,7 @@ extension UserLocalResponse {
             id: id,
             email: email,
             gender: gender,
+            isDeleted: isDeleted ?? false,
             location: location?.mapToModel(),
             name: name,
             phone: phone,

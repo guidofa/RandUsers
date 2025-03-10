@@ -42,8 +42,8 @@ struct UserListView: View {
 
                 ListView(
                     viewModel: viewModel,
-                    selectedUser: $selectedUser,
-                    searchText: $searchText
+                    searchText: $searchText,
+                    selectedUser: $selectedUser
                 )
 
                 if viewModel.state == .loading {
@@ -53,7 +53,7 @@ struct UserListView: View {
                 } else if viewModel.state == .error {
                     Text(.genericError)
                         .foregroundColor(.red)
-                        .font(.callout)
+                        .font(.headline)
                 }
             }
             .navigationTitle(.navigationTitle)
@@ -70,25 +70,32 @@ struct UserListView: View {
 private struct ListView: View {
     @StateObject var viewModel: UserListViewModel
 
-    @Binding var selectedUser: UserModel?
     @Binding var searchText: String
+    @Binding var selectedUser: UserModel?
+
+    private func loadMoreIfNeeded(for user: UserModel) {
+        let isLastUser = user == viewModel.usersListToShow.last
+        let isNotLoading = viewModel.state != .loading
+        if isLastUser && isNotLoading && searchText.isEmpty {
+            Task {
+                await viewModel.trigger(.getUsersList)
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: .largePadding) {
                 ForEach(viewModel.usersListToShow) { user in
-                    UserView(user: user)
-                        .onTapGesture { selectedUser = user }
-                        .onAppear { [weak viewModel] in
-                            guard let viewModel = viewModel else { return }
-                            let isLastUser = user == viewModel.usersListToShow.last
-                            let isNotLoading = viewModel.state != .loading
-                            if isLastUser && isNotLoading && searchText.isEmpty {
-                                Task {
-                                    await viewModel.trigger(.getUsersList)
-                                }
-                            }
+                    UserView(user: user, onDelete: {
+                        Task { [weak viewModel] in
+                            await viewModel?.trigger(.deleteUser(user))
                         }
+                    })
+                    .onTapGesture { selectedUser = user }
+                    .onAppear {
+                        loadMoreIfNeeded(for: user)
+                    }
                 }
             }
         }
@@ -97,10 +104,11 @@ private struct ListView: View {
 
 private struct UserView: View {
     let user: UserModel
+    let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            if let picture = user.thumbnailPicture {
+            if let picture = user.picture {
                 AsyncImage(url: URL(string: picture)) { phase in
                     if let image = phase.image {
                         image.resizable()
@@ -135,6 +143,13 @@ private struct UserView: View {
             }
 
             Spacer(minLength: 4)
+
+            Button {
+                onDelete()
+            } label: {
+                Image(systemName: "xmark.circle")
+                    .foregroundColor(.red)
+            }
         }
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.ruSecondary).shadow(radius: 4))
@@ -172,6 +187,9 @@ struct SearchView: View {
 #Preview {
     UserListView(
         viewModel: .init(
+            deleteUserUseCase: DeleteUserUseCaseImpl(
+                userLocalRepository: UserLocalRepositoryImpl()
+            ),
             getUserListUseCase: GetUserListUseCaseImpl(
                 userRepository: UserRepositoryImpl(
                     userLocalRepository: UserLocalRepositoryImpl()
