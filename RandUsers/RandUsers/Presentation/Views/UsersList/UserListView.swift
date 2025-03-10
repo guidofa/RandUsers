@@ -145,7 +145,7 @@ private struct UserView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: .largePadding) {
-            if let picture = user.picture {
+            if let picture = user.thumbnailPicture {
                 AsyncImage(url: URL(string: picture)) { phase in
                     if let image = phase.image {
                         image
@@ -154,7 +154,7 @@ private struct UserView: View {
                     } else if phase.error != nil {
                         Image(systemName: .defaultProfileImageName)
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
                             .foregroundColor(.gray)
                     } else {
                         ProgressView()
