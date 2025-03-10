@@ -28,6 +28,12 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
         }
     }
 
+    init(
+        realm: Realm
+    ) {
+        self.realm = realm
+    }
+
     @MainActor
     func deleteUser(userModel: UserModel) async -> UserModel? {
         try? realm.write {

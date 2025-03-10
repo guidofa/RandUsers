@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		C561A07D2D7A983D008CCE69 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C561A07C2D7A983D008CCE69 /* RealmSwift */; };
+		C56E2CE82D7F31D60096496A /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C56E2CE72D7F31D60096496A /* RealmSwift */; };
+		C56E2CE92D7F31D60096496A /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = C56E2CE72D7F31D60096496A /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C57C6A672D7CE15A0087F9DE /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = C561A07C2D7A983D008CCE69 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -29,6 +31,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		C56E2CEA2D7F31D60096496A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C56E2CE92D7F31D60096496A /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C57C6A682D7CE15A0087F9DE /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -79,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C56E2CE82D7F31D60096496A /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +112,7 @@
 				C55430F82D7A4D2700460438 /* RandUsers */,
 				C55431092D7A4D2800460438 /* RandUsersTests */,
 				C55431132D7A4D2800460438 /* RandUsersUITests */,
+				C56E2CE62D7F31D60096496A /* Frameworks */,
 				C55430F72D7A4D2700460438 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -110,6 +125,13 @@
 				C55431102D7A4D2800460438 /* RandUsersUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C56E2CE62D7F31D60096496A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,6 +169,7 @@
 				C55431022D7A4D2800460438 /* Sources */,
 				C55431032D7A4D2800460438 /* Frameworks */,
 				C55431042D7A4D2800460438 /* Resources */,
+				C56E2CEA2D7F31D60096496A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -158,6 +181,7 @@
 			);
 			name = RandUsersTests;
 			packageProductDependencies = (
+				C56E2CE72D7F31D60096496A /* RealmSwift */,
 			);
 			productName = RandUsersTests;
 			productReference = C55431062D7A4D2800460438 /* RandUsersTests.xctest */;
@@ -626,6 +650,11 @@
 			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		C561A07C2D7A983D008CCE69 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C561A07B2D7A983D008CCE69 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		C56E2CE72D7F31D60096496A /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C561A07B2D7A983D008CCE69 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
