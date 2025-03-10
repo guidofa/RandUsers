@@ -20,7 +20,7 @@ struct UserRepositoryImpl: UserRepository {
         userLocalRepository: UserLocalRepository
     ) {
         self.session = session
-        self.userLocalRepository = UserLocalRepositoryImpl()
+        self.userLocalRepository = userLocalRepository
     }
 
     func getUsers(page: Int, seed: String?) async throws -> ResultModel {
