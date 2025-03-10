@@ -8,7 +8,7 @@
 import Foundation
 
 struct UserModel: Equatable, Identifiable, Hashable {
-    let id: String
+    var id: String
     let email: String?
     let gender: String?
     var isDeleted: Bool = false
