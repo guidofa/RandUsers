@@ -14,6 +14,10 @@ private extension CGFloat {
     static var largePadding: Self { 16 }
 }
 
+private extension Double {
+    static var debounceTime: Self { 0.2 }
+}
+
 private extension LocalizedStringKey {
     static var emptyStateMessage: Self { "No Contacts Found." }
     static var genericError: Self { "❌ Ooops... there was an error!" }
@@ -143,7 +147,7 @@ struct SearchView: View {
         .padding(.vertical, .mediumPadding)
         .onChange(of: searchText) { newValue in
             debounceTimer?.invalidate()
-            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
+            debounceTimer = Timer.scheduledTimer(withTimeInterval: .debounceTime, repeats: false) { _ in
                 onDebounce(newValue)
             }
         }
@@ -200,7 +204,7 @@ private struct UserView: View {
             Button(action: onDelete) {
                 Image(systemName: .deleteIcon)
                     .font(.title2)
-                    .foregroundColor(.red)
+                    .foregroundColor(.ruPrimary)
             }
         }
         .padding(.defaultPadding)
