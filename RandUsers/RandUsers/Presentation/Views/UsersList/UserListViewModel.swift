@@ -17,6 +17,7 @@ class UserListViewModel: ObservableObject {
 
     private var currentResult: ResultModel?
     private var usersList: [UserModel] = []
+    private var isSearching = false
 
     // MARK: - Public Enums
 
@@ -64,7 +65,7 @@ class UserListViewModel: ObservableObject {
                 await setFilteredUsersList(usersList)
                 return
             }
-
+            isSearching = true
             await searchUsers(withTerm: searchTerm)
 
         case .getUsersList:
@@ -79,10 +80,18 @@ class UserListViewModel: ObservableObject {
         userToDelete.isDeleted = true
 
         guard let deletedUser = await deleteUserUseCase.execute(userModel: userToDelete),
-              let index = usersList.firstIndex(where: { $0.id == deletedUser.id })
+              let index = usersList.firstIndex(where: { $0.id == deletedUser.id }),
+              let index2 = usersListToShow.firstIndex(where: { $0.id == deletedUser.id })
         else { return }
 
         usersList[index].isDeleted = true
+        usersListToShow[index2].isDeleted = true
+
+        if isSearching {
+            await setFilteredUsersList(usersListToShow)
+            return
+        }
+
         await setFilteredUsersList(usersList)
     }
 

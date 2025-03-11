@@ -7,20 +7,63 @@
 
 import Foundation
 
+protocol HTTPClient {
+    func fetchData(from url: URL) async throws -> (Data, URLResponse)
+}
+
+struct URLSessionHTTPClient: HTTPClient {
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+
+    func fetchData(from url: URL) async throws -> (Data, URLResponse) {
+        return try await session.data(from: url)
+    }
+}
+
+// MARK: - Repositorio de Usuarios
+
+/// Protocolo para el repositorio de usuarios.
 protocol UserRepository {
     func getUsers(page: Int, seed: String?) async throws -> ResultModel
 }
 
+/// Implementación del repositorio de usuarios.
 struct UserRepositoryImpl: UserRepository {
-    private let session: URLSession
+    private let httpClient: HTTPClient
     private let userLocalRepository: UserLocalRepository
 
     init(
-        session: URLSession = .shared,
+        httpClient: HTTPClient = URLSessionHTTPClient(),
         userLocalRepository: UserLocalRepository
     ) {
-        self.session = session
+        self.httpClient = httpClient
         self.userLocalRepository = userLocalRepository
+    }
+
+    private func buildURL(page: Int, seed: String?) throws -> URL {
+        guard var components = URLComponents(string: NetworkConstants.apiBaseURLString) else {
+            throw URLError(.badURL)
+        }
+
+        var queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "results", value: NetworkConstants.usersPerPage)
+        ]
+
+        if let seed = seed {
+            queryItems.append(URLQueryItem(name: "seed", value: seed))
+        }
+
+        components.queryItems = queryItems
+
+        guard let url = components.url, url.scheme != nil, url.host != nil else {
+            throw URLError(.badURL)
+        }
+
+        return url
     }
 
     func getUsers(page: Int, seed: String?) async throws -> ResultModel {
@@ -28,44 +71,21 @@ struct UserRepositoryImpl: UserRepository {
             return cachedResult
         }
 
-        do {
-            var components = URLComponents(string: NetworkConstants.apiBaseURLString)
+        let url = try buildURL(page: page, seed: seed)
 
-            var queryItems: [URLQueryItem] = [
-                URLQueryItem(name: "page", value: String(page)),
-                URLQueryItem(name: "results", value: NetworkConstants.usersPerPage)
-            ]
+        let (data, response) = try await httpClient.fetchData(from: url)
 
-            if let seed {
-                queryItems.append(.init(name: "seed", value: seed))
-            }
-
-            components?.queryItems = queryItems
-
-            guard let url = components?.url, url.scheme != nil, url.host != nil else {
-                throw URLError(.badURL)
-            }
-
-            print("🌐 API call: \(url.absoluteString)")
-            let (data, response) = try await session.data(from: url)
-
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200,
-                  httpResponse.mimeType == "application/json" else {
-                throw URLError(.badServerResponse )
-            }
-
-            print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
-
-            let jsonResponse = try JSONDecoder().decode(ResultResponse.self, from: data)
-
-            let resultModel = jsonResponse.toResultModel()
-
-            await userLocalRepository.saveUserModel(resultModel)
-
-            return resultModel
-        } catch let error {
-            throw error
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200,
+              httpResponse.mimeType == "application/json" else {
+            throw URLError(.badServerResponse)
         }
+
+        let jsonResponse = try JSONDecoder().decode(ResultResponse.self, from: data)
+        let resultModel = jsonResponse.toResultModel()
+
+        await userLocalRepository.saveUserModel(resultModel)
+
+        return resultModel
     }
 }

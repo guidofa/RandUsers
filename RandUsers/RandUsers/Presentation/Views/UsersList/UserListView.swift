@@ -15,14 +15,15 @@ private extension CGFloat {
 }
 
 private extension LocalizedStringKey {
+    static var emptyStateMessage: Self { "No Contacts Found." }
     static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
     static var searchPlaceholder: Self { "Search by name, surname or email" }
 }
 
 private extension String {
-    static var deleteIcon: Self { "xmark.circle.fill" }
     static var defaultProfileImageName: Self { "person.fill" }
+    static var deleteIcon: Self { "xmark.circle.fill" }
     static var searchIconName: Self { "magnifyingglass" }
 }
 
@@ -30,9 +31,8 @@ struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
 
     @State private var debouncedSearchText: String = .empty
-    @State private var searchText: String = .empty
-
     @State private var selectedUser: UserModel?
+    @State private var searchText: String = .empty
 
     var body: some View {
         NavigationStack {
@@ -44,20 +44,30 @@ struct UserListView: View {
                     }
                 })
 
-                ListView(
-                    viewModel: viewModel,
-                    searchText: $searchText,
-                    selectedUser: $selectedUser
-                )
+                if viewModel.usersListToShow.isEmpty {
+                    Spacer(minLength: .zero)
 
-                if viewModel.state == .loading {
-                    ProgressView()
-                        .controlSize(.large)
-                        .tint(.ruPrimary)
-                } else if viewModel.state == .error {
-                    Text(.genericError)
-                        .foregroundColor(.red)
-                        .font(.headline)
+                    Text(.emptyStateMessage)
+                        .font(.title3)
+                        .foregroundStyle(.ruPrimary)
+
+                    Spacer(minLength: .zero)
+                } else {
+                    ListView(
+                        viewModel: viewModel,
+                        searchText: $searchText,
+                        selectedUser: $selectedUser
+                    )
+
+                    if viewModel.state == .loading {
+                        ProgressView()
+                            .controlSize(.large)
+                            .tint(.ruPrimary)
+                    } else if viewModel.state == .error {
+                        Text(.genericError)
+                            .foregroundColor(.red)
+                            .font(.headline)
+                    }
                 }
             }
             .navigationTitle(.navigationTitle)

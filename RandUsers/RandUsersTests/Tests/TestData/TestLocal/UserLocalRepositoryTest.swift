@@ -11,8 +11,9 @@ import RealmSwift
 
 final class UserLocalRepositoryTest: XCTestCase {
 
-    var sut: UserLocalRepository!
     var realm: Realm!
+
+    var sut: UserLocalRepository!
 
     @MainActor
     override func setUpWithError() throws {

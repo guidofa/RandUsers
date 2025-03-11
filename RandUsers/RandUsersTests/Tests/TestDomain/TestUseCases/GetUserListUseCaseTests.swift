@@ -11,6 +11,7 @@ import XCTest
 final class GetUserListUseCaseTests: XCTestCase {
 
     var mockUserRepository: MockUserRepositoryImpl!
+
     var sut: GetUserListUseCase!
 
     override func setUpWithError() throws {
