@@ -91,8 +91,9 @@ private struct ListView: View {
         let isLastUser = user == viewModel.usersListToShow.last
         let isNotLoading = viewModel.state != .loading
         if isLastUser && isNotLoading && searchText.isEmpty {
-            Task {
-                await viewModel.trigger(.getUsersList)
+            Task { [weak viewModel] in
+                try await Task.sleep(nanoseconds: 100_000_000)
+                await viewModel?.trigger(.getUsersList)
             }
         }
     }
