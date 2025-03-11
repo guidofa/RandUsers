@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "3498B948-2358-44EC-893A-9F3338E1BED8",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:RandUsers.xcodeproj",
+        "identifier" : "C55431052D7A4D2800460438",
+        "name" : "RandUsersTests"
+      }
+    }
+  ],
+  "version" : 1
+}

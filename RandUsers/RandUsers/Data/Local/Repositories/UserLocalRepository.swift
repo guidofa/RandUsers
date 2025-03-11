@@ -36,10 +36,19 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
 
     @MainActor
     func deleteUser(userModel: UserModel) async -> UserModel? {
-        try? realm.write {
-            realm.add(userModel.mapToLocal(), update: .modified)
+        guard let objectToUpdate = realm.object(ofType: UserLocalResponse.self, forPrimaryKey: userModel.id) else {
+            return nil
         }
-        return realm.object(ofType: UserLocalResponse.self, forPrimaryKey: userModel.id)?.mapToModel()
+
+        do {
+            try realm.write {
+                realm.add(userModel.mapToLocal(), update: .modified)
+            }
+            return objectToUpdate.mapToModel()
+        } catch {
+            print("Error performing logical delete: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     @MainActor
@@ -71,6 +80,7 @@ struct UserLocalRepositoryImpl: UserLocalRepository {
             }
 
             auxResultModel.users = usersNotAlreadySaved
+
             try? realm.write {
                 let resultLocal = auxResultModel.mapToLocal()
                 realm.add(resultLocal)

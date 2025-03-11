@@ -14,23 +14,8 @@ struct MockResultModel {
             page: 3,
             seed: "mockseed",
             users: [
-                .init(
-                    id: "1",
-                    email: "john@example.com",
-                    gender: "male",
-                    location: .init(
-                        city: "Rosario",
-                        state: "Sante Fe",
-                        streetName: "Sin Nombre",
-                        streetNumber: "732"
-                    ),
-                    name: "John",
-                    phone: "+32 323 123 4",
-                    picture: "picture.jpg",
-                    registeredDate: Date(),
-                    surname: "Doe",
-                    thumbnailPicture: "picture_thumbnail.jpg"
-                ),
+                MockUserModel
+                    .getMockUser(),
                 .init(
                     id: "2",
                     email: "jane@example.com",

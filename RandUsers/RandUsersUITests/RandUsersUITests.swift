@@ -28,7 +28,8 @@ final class RandUsersUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        app.scrollViews.otherElements.element(boundBy: 0)
+        
     }
 
     @MainActor
