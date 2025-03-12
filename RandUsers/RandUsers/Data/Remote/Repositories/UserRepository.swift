@@ -7,19 +7,21 @@
 
 import Foundation
 
+// MARK: - Repositorio de Usuarios
+
 protocol UserRepository {
     func getUsers(page: Int, seed: String?) async throws -> ResultModel
 }
 
 struct UserRepositoryImpl: UserRepository {
-    private let session: URLSession
+    private let networkManager: NetworkManager
     private let userLocalRepository: UserLocalRepository
 
     init(
-        session: URLSession = .shared,
+        networkManager: NetworkManager,
         userLocalRepository: UserLocalRepository
     ) {
-        self.session = session
+        self.networkManager = networkManager
         self.userLocalRepository = userLocalRepository
     }
 
@@ -28,44 +30,44 @@ struct UserRepositoryImpl: UserRepository {
             return cachedResult
         }
 
-        do {
-            var components = URLComponents(string: NetworkConstants.apiBaseURLString)
+        let url = try buildURL(page: page, seed: seed)
 
-            var queryItems: [URLQueryItem] = [
-                URLQueryItem(name: "page", value: String(page)),
-                URLQueryItem(name: "results", value: NetworkConstants.usersPerPage)
-            ]
+        let (data, response) = try await networkManager.fetchData(from: url)
 
-            if let seed {
-                queryItems.append(.init(name: "seed", value: seed))
-            }
-
-            components?.queryItems = queryItems
-
-            guard let url = components?.url, url.scheme != nil, url.host != nil else {
-                throw URLError(.badURL)
-            }
-
-            print("🌐 API call: \(url.absoluteString)")
-            let (data, response) = try await session.data(from: url)
-
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200,
-                  httpResponse.mimeType == "application/json" else {
-                throw URLError(.badServerResponse )
-            }
-
-            print("✅ Response: \(String(data: data, encoding: .utf8) ?? "❌ Error decoding data")")
-
-            let jsonResponse = try JSONDecoder().decode(ResultResponse.self, from: data)
-
-            let resultModel = jsonResponse.toResultModel()
-
-            await userLocalRepository.saveUserModel(resultModel)
-
-            return resultModel
-        } catch let error {
-            throw error
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200,
+              httpResponse.mimeType == "application/json" else {
+            throw URLError(.badServerResponse)
         }
+
+        let jsonResponse = try JSONDecoder().decode(ResultResponse.self, from: data)
+        let resultModel = jsonResponse.toResultModel()
+
+        await userLocalRepository.saveUserModel(resultModel)
+
+        return resultModel
+    }
+
+    private func buildURL(page: Int, seed: String?) throws -> URL {
+        guard var components = URLComponents(string: NetworkConstants.apiBaseURLString) else {
+            throw URLError(.badURL)
+        }
+
+        var queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "results", value: NetworkConstants.usersPerPage)
+        ]
+
+        if let seed = seed {
+            queryItems.append(URLQueryItem(name: "seed", value: seed))
+        }
+
+        components.queryItems = queryItems
+
+        guard let url = components.url, url.scheme != nil, url.host != nil else {
+            throw URLError(.badURL)
+        }
+
+        return url
     }
 }

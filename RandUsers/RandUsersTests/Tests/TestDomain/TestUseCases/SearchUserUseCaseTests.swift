@@ -11,15 +11,18 @@ import XCTest
 final class SearchUserUseCaseTests: XCTestCase {
 
     var mockUserLocalRepository: MockUserLocalRepository!
+
     var sut: SearchUserUseCase!
 
     override func setUpWithError() throws {
         self.mockUserLocalRepository = MockUserLocalRepository()
+
         self.sut = SearchUserUseCaseImpl(userLocalRepository: mockUserLocalRepository)
     }
 
     override func tearDownWithError() throws {
         self.mockUserLocalRepository = nil
+
         self.sut = nil
     }
 

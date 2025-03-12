@@ -11,15 +11,18 @@ import XCTest
 final class DeleteUserUseCaseTests: XCTestCase {
 
     var mockUserLocalRepository: MockUserLocalRepository!
+
     var sut: DeleteUserUseCase!
 
     override func setUpWithError() throws {
         self.mockUserLocalRepository = MockUserLocalRepository()
+
         self.sut = DeleteUserUseCaseImpl(userLocalRepository: mockUserLocalRepository)
     }
 
     override func tearDownWithError() throws {
         self.mockUserLocalRepository = nil
+
         self.sut = nil
     }
 

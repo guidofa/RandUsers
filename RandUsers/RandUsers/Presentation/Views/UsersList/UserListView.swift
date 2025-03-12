@@ -14,15 +14,20 @@ private extension CGFloat {
     static var largePadding: Self { 16 }
 }
 
+private extension Double {
+    static var debounceTime: Self { 0.5 }
+}
+
 private extension LocalizedStringKey {
+    static var emptyStateMessage: Self { "No Contacts Found." }
     static var genericError: Self { "❌ Ooops... there was an error!" }
     static var navigationTitle: Self { "Random Users" }
     static var searchPlaceholder: Self { "Search by name, surname or email" }
 }
 
 private extension String {
-    static var deleteIcon: Self { "xmark.circle.fill" }
     static var defaultProfileImageName: Self { "person.fill" }
+    static var deleteIcon: Self { "xmark.circle.fill" }
     static var searchIconName: Self { "magnifyingglass" }
 }
 
@@ -30,9 +35,8 @@ struct UserListView: View {
     @StateObject var viewModel: UserListViewModel
 
     @State private var debouncedSearchText: String = .empty
-    @State private var searchText: String = .empty
-
     @State private var selectedUser: UserModel?
+    @State private var searchText: String = .empty
 
     var body: some View {
         NavigationStack {
@@ -44,29 +48,43 @@ struct UserListView: View {
                     }
                 })
 
-                ListView(
-                    viewModel: viewModel,
-                    searchText: $searchText,
-                    selectedUser: $selectedUser
-                )
+                if viewModel.usersListToShow.isEmpty {
+                    Spacer(minLength: .zero)
 
-                if viewModel.state == .loading {
-                    ProgressView()
-                        .controlSize(.large)
-                        .tint(.ruPrimary)
-                } else if viewModel.state == .error {
-                    Text(.genericError)
-                        .foregroundColor(.red)
-                        .font(.headline)
+                    Text(.emptyStateMessage)
+                        .font(.title3)
+                        .foregroundStyle(.ruPrimary)
+                        .onAppear {
+                            if searchText == .empty {
+                                Task { [weak viewModel] in
+                                    await viewModel?.trigger(.getUsersList)
+                                }
+                            }
+                        }
+
+                    Spacer(minLength: .zero)
+                } else {
+                    ListView(
+                        viewModel: viewModel,
+                        searchText: $searchText,
+                        selectedUser: $selectedUser
+                    )
+
+                    if viewModel.state == .loading {
+                        ProgressView()
+                            .controlSize(.large)
+                            .tint(.ruPrimary)
+                    } else if viewModel.state == .error {
+                        Text(.genericError)
+                            .foregroundColor(.red)
+                            .font(.headline)
+                    }
                 }
             }
             .navigationTitle(.navigationTitle)
             .sheet(item: $selectedUser, content: { user in
                 UserDetailView(user: user)
             })
-        }
-        .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList)
         }
     }
 }
@@ -81,8 +99,9 @@ private struct ListView: View {
         let isLastUser = user == viewModel.usersListToShow.last
         let isNotLoading = viewModel.state != .loading
         if isLastUser && isNotLoading && searchText.isEmpty {
-            Task {
-                await viewModel.trigger(.getUsersList)
+            Task { [weak viewModel] in
+                try await Task.sleep(nanoseconds: 300_000_000)
+                await viewModel?.trigger(.getUsersList)
             }
         }
     }
@@ -132,7 +151,7 @@ struct SearchView: View {
         .padding(.vertical, .mediumPadding)
         .onChange(of: searchText) { newValue in
             debounceTimer?.invalidate()
-            debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
+            debounceTimer = Timer.scheduledTimer(withTimeInterval: .debounceTime, repeats: false) { _ in
                 onDebounce(newValue)
             }
         }
@@ -189,7 +208,7 @@ private struct UserView: View {
             Button(action: onDelete) {
                 Image(systemName: .deleteIcon)
                     .font(.title2)
-                    .foregroundColor(.red)
+                    .foregroundColor(.ruPrimary)
             }
         }
         .padding(.defaultPadding)
@@ -210,6 +229,7 @@ private struct UserView: View {
             ),
             getUserListUseCase: GetUserListUseCaseImpl(
                 userRepository: UserRepositoryImpl(
+                    networkManager: NetworkManagerImpl(),
                     userLocalRepository: UserLocalRepositoryImpl()
                 )
             ),

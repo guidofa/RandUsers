@@ -59,6 +59,7 @@
 		C55430F62D7A4D2700460438 /* RandUsers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandUsers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C55431062D7A4D2800460438 /* RandUsersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandUsersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C55431102D7A4D2800460438 /* RandUsersUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandUsersUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C584F64B2D80CE39000AFB56 /* RandUsersTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = RandUsersTests.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -109,6 +110,7 @@
 		C55430ED2D7A4D2700460438 = {
 			isa = PBXGroup;
 			children = (
+				C584F64B2D80CE39000AFB56 /* RandUsersTests.xctestplan */,
 				C55430F82D7A4D2700460438 /* RandUsers */,
 				C55431092D7A4D2800460438 /* RandUsersTests */,
 				C55431132D7A4D2800460438 /* RandUsersUITests */,

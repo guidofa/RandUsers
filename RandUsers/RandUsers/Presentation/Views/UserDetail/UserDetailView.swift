@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+private extension CGFloat {
+    static var smallPadding: Self { 4 }
+    static var mediumPadding: Self { 8 }
+    static var defaultPadding: Self { 12 }
+    static var largePadding: Self { 16 }
+    static var extraLargePadding: Self { 32 }
+}
+
 private extension LocalizedStringKey {
     static var address: LocalizedStringKey { "Address:" }
     static var email: LocalizedStringKey { "Email:" }
@@ -27,7 +35,7 @@ struct UserDetailView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: .extraLargePadding) {
                     if let picture = user.picture {
                         AsyncImage(url: URL(string: picture)) { phase in
                             if let image = phase.image {
@@ -47,7 +55,7 @@ struct UserDetailView: View {
                         .clipShape(Circle())
                         .overlay(Circle().stroke(.ruPrimary, lineWidth: 4))
                         .shadow(radius: 10)
-                        .padding(.top, 20)
+                        .padding(.top, .largePadding)
                     }
 
                     Text(user.completeName)
@@ -55,14 +63,26 @@ struct UserDetailView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
 
-                    VStack(spacing: 16) {
-                        InfoView(title: .gender, subtitle: user.gender ?? "")
+                    VStack(spacing: .largePadding) {
+                        InfoView(
+                            title: .gender,
+                            subtitle: user.gender ?? .empty
+                        )
 
-                        InfoView(title: .registrationDate, subtitle: user.registeredDate?.formatted() ?? "")
+                        InfoView(
+                            title: .registrationDate,
+                            subtitle: user.registeredDate?.formatted() ?? .empty
+                        )
 
-                        InfoView(title: .address, subtitle: user.location?.address ?? "")
+                        InfoView(
+                            title: .address,
+                            subtitle: user.location?.address ?? .empty
+                        )
 
-                        InfoView(title: .email, subtitle: user.email ?? "")
+                        InfoView(
+                            title: .email,
+                            subtitle: user.email ?? .empty
+                        )
                     }
                     .padding()
                     .background(Color(UIColor.secondarySystemBackground))
