@@ -54,6 +54,13 @@ struct UserListView: View {
                     Text(.emptyStateMessage)
                         .font(.title3)
                         .foregroundStyle(.ruPrimary)
+                        .onAppear {
+                            if searchText == .empty {
+                                Task { [weak viewModel] in
+                                    await viewModel?.trigger(.getUsersList)
+                                }
+                            }
+                        }
 
                     Spacer(minLength: .zero)
                 } else {
@@ -79,9 +86,6 @@ struct UserListView: View {
                 UserDetailView(user: user)
             })
         }
-        .task { [weak viewModel] in
-            await viewModel?.trigger(.getUsersList)
-        }
     }
 }
 
@@ -96,7 +100,7 @@ private struct ListView: View {
         let isNotLoading = viewModel.state != .loading
         if isLastUser && isNotLoading && searchText.isEmpty {
             Task { [weak viewModel] in
-                try await Task.sleep(nanoseconds: 100_000_000)
+                try await Task.sleep(nanoseconds: 200_000_000)
                 await viewModel?.trigger(.getUsersList)
             }
         }
