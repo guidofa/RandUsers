@@ -15,7 +15,7 @@ private extension CGFloat {
 }
 
 private extension Double {
-    static var debounceTime: Self { 0.2 }
+    static var debounceTime: Self { 0.5 }
 }
 
 private extension LocalizedStringKey {
@@ -100,7 +100,7 @@ private struct ListView: View {
         let isNotLoading = viewModel.state != .loading
         if isLastUser && isNotLoading && searchText.isEmpty {
             Task { [weak viewModel] in
-                try await Task.sleep(nanoseconds: 200_000_000)
+                try await Task.sleep(nanoseconds: 300_000_000)
                 await viewModel?.trigger(.getUsersList)
             }
         }
