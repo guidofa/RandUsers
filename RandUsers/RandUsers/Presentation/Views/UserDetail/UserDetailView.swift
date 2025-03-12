@@ -93,7 +93,7 @@ struct UserDetailView: View {
                 }
                 .padding()
             }
-            .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
+            .accessibilityIdentifier("UserDetailView")
             .navigationTitle(Text(.title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -104,6 +104,7 @@ struct UserDetailView: View {
                         Image(systemName: "xmark")
                             .tint(Color.primary)
                     }
+                    .accessibilityIdentifier("CloseDetailButton")
                 }
             }
         }

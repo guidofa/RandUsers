@@ -20,7 +20,7 @@ struct GetUserListUseCaseImpl: GetUserListUseCase {
 
     func execute(page: Int, seed: String?) async throws -> ResultModel {
         let result = try await userRepository.getUsers(page: page, seed: seed)
-        
+
         if result.users.filter({ !$0.isDeleted }).count  == .zero {
             return try await execute(page: page + 1, seed: seed)
         }

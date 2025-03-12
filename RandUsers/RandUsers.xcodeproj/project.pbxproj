@@ -56,6 +56,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C531EDF72D8147E9009E8072 /* RandUsersUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = RandUsersUITests.xctestplan; sourceTree = "<group>"; };
 		C55430F62D7A4D2700460438 /* RandUsers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandUsers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C55431062D7A4D2800460438 /* RandUsersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandUsersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C55431102D7A4D2800460438 /* RandUsersUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandUsersUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -110,11 +111,11 @@
 		C55430ED2D7A4D2700460438 = {
 			isa = PBXGroup;
 			children = (
+				C531EDF72D8147E9009E8072 /* RandUsersUITests.xctestplan */,
 				C584F64B2D80CE39000AFB56 /* RandUsersTests.xctestplan */,
 				C55430F82D7A4D2700460438 /* RandUsers */,
 				C55431092D7A4D2800460438 /* RandUsersTests */,
 				C55431132D7A4D2800460438 /* RandUsersUITests */,
-				C56E2CE62D7F31D60096496A /* Frameworks */,
 				C55430F72D7A4D2700460438 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -127,13 +128,6 @@
 				C55431102D7A4D2800460438 /* RandUsersUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		C56E2CE62D7F31D60096496A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

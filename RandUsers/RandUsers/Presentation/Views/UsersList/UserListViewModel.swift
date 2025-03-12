@@ -138,12 +138,13 @@ class UserListViewModel: ObservableObject {
     }
 
     @MainActor
+    private func setLoadingState(state: ViewState) {
+        self.state = state
+    }
+
+    @MainActor
     private func setUsersListToShow(_ usersList: [UserModel]) {
         self.usersListToShow.append(contentsOf: usersList.filter({ !$0.isDeleted }))
     }
 
-    @MainActor
-    private func setLoadingState(state: ViewState) {
-        self.state = state
-    }
 }

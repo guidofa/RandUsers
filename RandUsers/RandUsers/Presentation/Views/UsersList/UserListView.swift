@@ -116,6 +116,7 @@ private struct ListView: View {
                         }
                     })
                     .onTapGesture { selectedUser = user }
+                    .accessibilityIdentifier("UserView")
                     .onAppear {
                         loadMoreIfNeeded(for: user)
                     }
@@ -123,6 +124,7 @@ private struct ListView: View {
             }
             .padding(.vertical, .smallPadding)
         }
+        .accessibilityIdentifier("UsersList")
     }
 }
 
@@ -210,6 +212,7 @@ private struct UserView: View {
                     .font(.title2)
                     .foregroundColor(.ruPrimary)
             }
+            .accessibilityIdentifier("Delete button")
         }
         .padding(.defaultPadding)
         .background(

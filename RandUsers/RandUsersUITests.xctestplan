@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "D87EFA3E-F858-4299-8668-BDF82A935C5F",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:RandUsers.xcodeproj",
+        "identifier" : "C554310F2D7A4D2800460438",
+        "name" : "RandUsersUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
