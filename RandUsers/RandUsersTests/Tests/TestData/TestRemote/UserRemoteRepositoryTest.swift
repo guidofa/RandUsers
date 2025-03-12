@@ -10,38 +10,41 @@ import XCTest
 
 final class UserRemoteRepositoryTest: XCTestCase {
 
-    var session: URLSession!
     var mockUserLocalRepository: MockUserLocalRepository!
+    var networkManager: MockNetworkManager!
 
     var sut: UserRepository!
     
     @MainActor
     override func setUpWithError() throws {
-        self.session = URLSession.shared
         self.mockUserLocalRepository = MockUserLocalRepository()
+        self.networkManager = MockNetworkManager()
 
         self.sut = UserRepositoryImpl(
-            session: session,
+            networkManager: networkManager,
             userLocalRepository: mockUserLocalRepository
         )
     }
 
     @MainActor
     override func tearDownWithError() throws {
-        self.session = nil
-        self.sut = nil
         self.mockUserLocalRepository = nil
+        self.networkManager = nil
+
+        self.sut = nil
     }
 
+    
     func testGetUsersSuccess() async throws {
         // Given
         let page = 1
-        let seed: String? = nil
 
         // When
-        let result = try await sut.getUsers(page: page, seed: seed)
+        let result = try await sut.getUsers(page: page, seed: "fail")
 
         // Then
+        XCTAssert(networkManager.fetchDataCalled)
         XCTAssertNotNil(result)
     }
+
 }

@@ -225,6 +225,7 @@ private struct UserView: View {
             ),
             getUserListUseCase: GetUserListUseCaseImpl(
                 userRepository: UserRepositoryImpl(
+                    networkManager: NetworkManagerImpl(),
                     userLocalRepository: UserLocalRepositoryImpl()
                 )
             ),

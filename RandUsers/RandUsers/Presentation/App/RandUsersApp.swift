@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct RandUsersApp: App {
+    // MARK: - Managers
+    private let networkManager: NetworkManager
+
     // MARK: - UseCases
 
     private let deleteUserUseCase: DeleteUserUseCase
@@ -21,11 +24,21 @@ struct RandUsersApp: App {
     private let userRepository: UserRepository
 
     init() {
+        self.networkManager = NetworkManagerImpl()
         self.userLocalRepository = UserLocalRepositoryImpl()
-        self.userRepository = UserRepositoryImpl(userLocalRepository: userLocalRepository)
-        self.deleteUserUseCase = DeleteUserUseCaseImpl(userLocalRepository: userLocalRepository)
-        self.getUserListUseCase = GetUserListUseCaseImpl(userRepository: userRepository)
-        self.searchUserUseCase = SearchUserUseCaseImpl(userLocalRepository: userLocalRepository)
+        self.userRepository = UserRepositoryImpl(
+            networkManager: networkManager,
+            userLocalRepository: userLocalRepository
+        )
+        self.deleteUserUseCase = DeleteUserUseCaseImpl(
+            userLocalRepository: userLocalRepository
+        )
+        self.getUserListUseCase = GetUserListUseCaseImpl(
+            userRepository: userRepository
+        )
+        self.searchUserUseCase = SearchUserUseCaseImpl(
+            userLocalRepository: userLocalRepository
+        )
     }
 
     var body: some Scene {

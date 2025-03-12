@@ -6,7 +6,6 @@
 //
 
 @testable import RandUsers
-import XCTest
 import Foundation
 
 class MockUserRepositoryImpl: UserRepository {
